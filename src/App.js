@@ -8,6 +8,7 @@ import Searchbar from './Components/Searchbar/Searchbar';
 function App() {
   const [page, setPage] = useState(1);
   const [inputValue, setInputValue] = useState(null);
+  const [value, setValue] = useState();
   const [data, setData] = useState();
   const [error,setError] = useState(null);
   const [searched,setSearched] = useState(false);
@@ -21,21 +22,35 @@ function App() {
     }
     getData().then((res) => {
       setData(res.data);
+      setData(prevData => {
+        return {
+          ...res.data,
+          results: [...prevData.results, ...prevData.results]
+        };
+      });
     });
     getData().catch((err) => setError(err))
-  });
+  }, [apiUrl]);
+
+  function handleSubmit(event){
+    event.preventDefault();
+    setInputValue(value);
+    setPage((prevPage) => prevPage + 1);
+    setSearched(true);
+    setData(null);
+  }
 
   return (
     <div className="App">
         <Header/>
-        <Searchbar setInputValue={setInputValue} setPage={setPage} setSearched={setSearched}/>
+        <Searchbar setValue={setValue} handleSubmit={handleSubmit}/>
         {error ? <>
-          <h1>Something went wrong...</h1>
+          <h1 style={{textAlign:"center"}}>Something went wrong...</h1>
           <p>{error.toString()}</p>
         </> : null}
         {data ? <div>
-          <CardPage data={data} page={page} searched={searched} />
-        </div> : inputValue ? <h1>Loading...</h1> : <h1>Enter something in search</h1>}
+          <CardPage data={data} page={page} searched={searched} handleSubmit={handleSubmit} />
+        </div> : inputValue ? <h1 style={{textAlign:"center"}}>Loading...</h1> : <h1 style={{textAlign:"center"}}>Enter something in search</h1>}
     </div>
   );
 }

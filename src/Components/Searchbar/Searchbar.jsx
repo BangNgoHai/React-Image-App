@@ -1,17 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './searchbar.css';
 
 const Searchbar = (props) => {
-  const {setInputValue,setPage,setSearched} = props;
-  const [value, setValue] = useState();
+  const {setValue,handleSubmit} = props;
   
-  function handleSubmit(event){
-      event.preventDefault();
-      setInputValue(value);
-      setPage(prevPage => prevPage + 1);
-      setSearched(true);
-  }
-
   return (
     <>
          <form className='form' onSubmit={handleSubmit}>
