@@ -9,35 +9,35 @@ function App() {
   const [page, setPage] = useState(1);
   const [inputValue, setInputValue] = useState(null);
   const [value, setValue] = useState();
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
   const [error,setError] = useState(null);
   const [searched,setSearched] = useState(false);
-  const accessKey = "waI0dYL3uz4j6CyuQOgEYMxW26JY6d33wM1lZJRVA5U";
-  const apiUrl = `https://api.unsplash.com/search/photos?page=${page}&query=${inputValue}&client_id=${accessKey}`;
 
   useEffect(()=>{
     async function getData(){
+      const accessKey = "waI0dYL3uz4j6CyuQOgEYMxW26JY6d33wM1lZJRVA5U";
+      const apiUrl = `https://api.unsplash.com/search/photos?page=${page}&query=${inputValue}&client_id=${accessKey}`;
       const res = await axios.get(apiUrl);
       return res;
     }
-    getData().then((res) => {
-      setData(res.data);
-      setData(prevData => {
-        return {
-          ...res.data,
-          results: [...prevData.results, ...prevData.results]
-        };
-      });
-    });
-    getData().catch((err) => setError(err))
-  }, [apiUrl]);
+    if (searched) {
+      // only fetch data when search button is clicked
+      getData().then((res) => {
+        setData(prevData => [...prevData, ...res.data.results]);
+      }).catch((err) => setError(err));
+    }
+  }, [page, inputValue, searched]);
 
   function handleSubmit(event){
     event.preventDefault();
+    setData([]);
     setInputValue(value);
-    setPage((prevPage) => prevPage + 1);
+    setPage(page + 1);
     setSearched(true);
-    setData(null);
+  }
+
+  function handleShowMore(){
+    setPage(page + 1);
   }
 
   return (
@@ -49,11 +49,15 @@ function App() {
           <p>{error.toString()}</p>
         </> : null}
         {data ? <div>
-          <CardPage data={data} page={page} searched={searched} handleSubmit={handleSubmit} />
-        </div> : inputValue ? <h1 style={{textAlign:"center"}}>Loading...</h1> : <h1 style={{textAlign:"center"}}>Enter something in search</h1>}
+            <CardPage data={data} searched={searched} handleShowMore={handleShowMore} />
+          </div> : inputValue ? <h1 style={{textAlign:"center"}}>Loading...</h1> : <h1 style={{textAlign:"center"}}>Enter something in search</h1>}
     </div>
   );
 }
 
 export default App;
+ 
+
+
+
  
